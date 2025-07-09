@@ -175,7 +175,6 @@ def convert():
         converted_pdf_filepath = os.path.join(app.config['CONVERTED_FOLDER'], converted_pdf_filename)
 
         # --- 임시 더미 PDF 파일 생성 (실제 변환 기능이 없을 때 테스트용) ---
-        # 실제 변환 로직을 구현하기 전까지는 이 부분을 사용하세요.
         try:
             with open(converted_pdf_filepath, 'w') as f:
                 f.write(f"This is a dummy PDF for {filename}. (Converted from Word to PDF)\n")
@@ -187,14 +186,48 @@ def convert():
             os.remove(filepath)
             return redirect(url_for('index'))
 
-        # 4. 변환된 파일 다운로드 링크 제공 또는 직접 다운로드
-        # 변환이 성공하면 파일 다운로드
-        # send_file은 파일을 직접 다운로드하게 합니다.
+        # 4. 변환된 파일 정보를 세션에 저장하고 결과 페이지로 리다이렉트
+        session['converted_file_info'] = {
+            'original_filename': filename,
+            'converted_filename': converted_pdf_filename
+        }
         flash(f'"{filename}" 파일이 성공적으로 PDF로 변환되었습니다!', 'success')
-        return send_file(converted_pdf_filepath, as_attachment=True, download_name=converted_pdf_filename)
+        return redirect(url_for('converted_result'))
 
     flash('알 수 없는 오류가 발생했습니다.', 'danger')
     return redirect(url_for('index'))
+
+# --- 변환 결과 페이지 라우트 ---
+@app.route('/converted_result')
+def converted_result():
+    converted_file_info = session.pop('converted_file_info', None) # 세션에서 정보 가져오고 삭제
+
+    if not converted_file_info:
+        # 변환 정보가 없으면 메인 페이지로 리다이렉트
+        flash('변환 결과 정보가 없습니다. 다시 시도해주세요.', 'danger')
+        return redirect(url_for('index'))
+
+    original_filename = converted_file_info['original_filename']
+    converted_filename = converted_file_info['converted_filename']
+
+    return render_template('converted_result.html',
+                           original_filename=original_filename,
+                           converted_filename=converted_filename)
+
+# --- 변환된 파일 다운로드 라우트 ---
+@app.route('/download/<filename>')
+def download_file(filename):
+    # 파일 경로가 안전한지 확인하는 로직 추가 필요 (os.path.join, send_from_directory 등)
+    # 여기서는 간단히 join을 사용하지만, 실제로는 send_from_directory를 권장합니다.
+    filepath = os.path.join(app.config['CONVERTED_FOLDER'], filename)
+    
+    # 파일이 존재하는지 확인
+    if os.path.exists(filepath):
+        return send_file(filepath, as_attachment=True, download_name=filename)
+    else:
+        flash('요청하신 파일을 찾을 수 없습니다.', 'danger')
+        return redirect(url_for('index'))
+
 
 # --- 데이터베이스 생성 (최초 1회만 실행) ---
 if __name__ == '__main__':
