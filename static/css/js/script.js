@@ -3,6 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const chooseFilesBtn = document.querySelector('.choose-files-btn');
     const fileInput = document.getElementById('file-input'); // HTML에 추가된 input[type="file"]
 
+    const fileInfo = document.querySelector('.file-info');
+
+    function displayFileInfo(files) {
+        if (!fileInfo) return;
+        if (files.length > 1) {
+            fileInfo.textContent = `${files.length} files selected`;
+        } else {
+            fileInfo.textContent = files[0].name;
+        }
+    }
+
     chooseFilesBtn.addEventListener('click', () => {
         fileInput.click(); // 버튼 클릭 시 실제 파일 입력 필드 클릭 유도
     });
@@ -22,7 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 파일 입력 필드 변경 시 (CHOOSE FILES 버튼 클릭 또는 파일 선택 후)
     fileInput.addEventListener('change', () => {
         if (fileInput.files.length > 0) {
-            handleFileUpload(fileInput.files[0]); // 첫 번째 파일만 처리
+            displayFileInfo(fileInput.files);
+            document.getElementById('upload-form').submit(); // 폼 제출
         }
     });
 
@@ -44,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const files = event.dataTransfer.files; // 드롭된 파일들
         if (files.length > 0) {
-            handleFileUpload(files[0]); // 첫 번째 파일만 처리
+            displayFileInfo(files);
         }
     });
 
