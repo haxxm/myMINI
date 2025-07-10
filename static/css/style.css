@@ -140,6 +140,11 @@ h1 {
     border: 2px dashed rgba(255,255,255,0.3); /* 점선 테두리 */
 }
 
+.upload-area.drag-over {
+    background-color: #7b3bdc;
+    border-color: #fff;
+}
+
 .document-icon {
     font-size: 4em; /* 아이콘 크기 */
     margin-bottom: 30px;
@@ -171,6 +176,13 @@ h1 {
 .upload-area p {
     font-size: 1.1em;
     color: rgba(255,255,255,0.8); /* 옅은 흰색 텍스트 */
+}
+
+
+.file-info {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #fff;
 }
 
 /* 푸터 (스크린샷에 없지만, 기본적인 푸터 스타일) */
@@ -237,3 +249,23 @@ footer {
 .main-nav li:hover .dropdown-menu {
     display: block;
 } */
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .main-nav ul {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .upload-area {
+        padding: 60px 20px;
+        min-height: 200px;
+    }
+    .choose-files-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
